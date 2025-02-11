@@ -60,6 +60,7 @@ class GameState {
         this.incompletePasses = 0;
         this.hasPossession = true;
         this.playerPosition = 10;
+        this.currentSpeech = null;
     }
 
     reset() {
@@ -80,17 +81,36 @@ class GameState {
         document.getElementById('possession').textContent = this.hasPossession ? 'Offense' : 'Defense';
         document.getElementById('incompletePasses').textContent = this.incompletePasses;
         
-        const player = document.getElementById('player');
-        player.style.left = `${this.playerPosition}%`;
+        const playerContainer = document.querySelector('.player-container');
+        playerContainer.style.left = `${this.playerPosition}%`;
+    }
+
+    stopSpeaking() {
+        if (this.currentSpeech) {
+            speechSynthesis.cancel();
+        }
     }
 }
 
 const game = new GameState();
 
 function speak(text) {
+    game.stopSpeaking();
     const speech = new SpeechSynthesisUtterance(text);
     speech.rate = 1;
+    game.currentSpeech = speech;
     speechSynthesis.speak(speech);
+}
+
+function readCurrentQuestion() {
+    const question = questions[game.currentQuestionIndex];
+    speak(question.question);
+    setTimeout(() => {
+        speak("The options are:");
+        question.options.forEach((option, index) => {
+            setTimeout(() => speak(option), (index + 1) * 2000);
+        });
+    }, 2000);
 }
 
 function showMessage(text, duration = 2000) {
@@ -102,35 +122,50 @@ function showMessage(text, duration = 2000) {
     }, duration);
 }
 
+function movePlayer() {
+    const player = document.querySelector('.player-container');
+    player.style.transition = 'left 1s ease';
+    player.style.left = `${game.playerPosition}%`;
+    
+    const sprite = document.querySelector('.sprite');
+    sprite.style.animation = 'run-animation 0.5s steps(6) infinite';
+    
+    setTimeout(() => {
+        sprite.style.animation = 'none';
+    }, 1000);
+}
+
 function handleCorrectAnswer() {
     game.score += 10;
     game.playerPosition += 10;
     game.down = 1;
     game.yardsToGo = 10;
     
+    movePlayer();
+    
     const player = document.getElementById('player');
     player.classList.add('celebrate');
     setTimeout(() => player.classList.remove('celebrate'), 1000);
     
     showMessage('First Down!');
-    speak('First Down!');
+    speak('First Down! Great job!');
 }
 
 function handleIncompletePass() {
-    game.incompletePasses++;
     game.down++;
     
-    if (game.incompletePasses >= 4) {
-        game.hasPossession = false;
-        showMessage('Turnover!');
-        speak('Turnover on downs!');
+    if (game.down > 4) {
+        game.incompletePasses++;
+        showMessage('Turnover on downs!');
+        speak('Turnover on downs! Try again!');
         setTimeout(() => {
             game.reset();
             showQuestion();
         }, 2000);
     } else {
-        showMessage('Incomplete Pass!');
-        speak('Incomplete Pass!');
+        showMessage('Incomplete Pass! Try again!');
+        speak('Incomplete Pass! Try again!');
+        // Don't increment currentQuestionIndex here to allow retry
     }
 }
 
@@ -150,30 +185,39 @@ function showQuestion() {
     question.options.forEach(option => {
         const button = document.createElement('button');
         button.textContent = option;
-        button.onclick = () => checkAnswer(option);
+        button.onclick = () => checkAnswer(option, button);
         optionsContainer.appendChild(button);
     });
 
-    speak(question.question);
+    readCurrentQuestion();
     game.updateDisplay();
 }
 
-function checkAnswer(selectedOption) {
+function checkAnswer(selectedOption, button) {
     const question = questions[game.currentQuestionIndex];
     if (selectedOption === question.answer) {
+        button.classList.add('correct');
         handleCorrectAnswer();
+        game.currentQuestionIndex++;
+        setTimeout(showQuestion, 1500);
     } else {
+        button.classList.add('incorrect');
         handleIncompletePass();
+        setTimeout(() => {
+            button.classList.remove('incorrect');
+        }, 1500);
     }
     
-    game.currentQuestionIndex++;
     game.updateDisplay();
-    setTimeout(showQuestion, 1500);
 }
 
 document.getElementById('startGame').onclick = () => {
     game.reset();
     showQuestion();
+};
+
+document.getElementById('readQuestion').onclick = () => {
+    readCurrentQuestion();
 };
 
 // Initialize the game
