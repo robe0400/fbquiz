@@ -7,13 +7,32 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>NFL Quiz Game</h1>
-    <div class="field">
-        <div class="yardline" id="yardline"></div>
+    <div class="game-container">
+        <div class="scoreboard">
+            <div class="stats">
+                <div>Down: <span id="down">1</span></div>
+                <div>Yards to Go: <span id="yardsToGo">10</span></div>
+                <div>Score: <span id="score">0</span></div>
+            </div>
+            <div class="possession">
+                <div>Possession: <span id="possession">Offense</span></div>
+                <div>Incomplete Passes: <span id="incompletePasses">0</span></div>
+            </div>
+        </div>
+        
+        <div class="field">
+            <div id="player" class="player">🏈</div>
+            <div class="yard-lines"></div>
+            <div id="message" class="message"></div>
+        </div>
+
+        <div class="question-container">
+            <div id="question" class="question"></div>
+            <div id="options" class="options"></div>
+        </div>
+
+        <button id="startGame" class="start-button">Start Game</button>
     </div>
-    <div class="question" id="question"></div>
-    <div class="options" id="options"></div>
-    <div class="score" id="score"></div>
     <script src="quiz.js"></script>
 </body>
 </html>
