@@ -1,37 +1,61 @@
 :root {
-    --field-green: #4CAF50;
+    --field-green: #2E7D32;
     --field-lines: #ffffff;
+    --scoreboard-bg: #1a1a1a;
 }
 
 body {
     margin: 0;
     padding: 20px;
     font-family: 'Arial', sans-serif;
-    background-color: #f0f0f0;
+    background-color: #0a0a0a;
+    color: white;
 }
 
 .game-container {
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
 }
 
 .scoreboard {
-    background-color: #333;
-    color: #fff;
+    background-color: var(--scoreboard-bg);
     padding: 15px;
     border-radius: 10px;
     margin-bottom: 20px;
-    display: flex;
-    justify-content: space-between;
 }
 
-.stats, .possession {
+.game-info {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.team {
+    font-size: 1.5em;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.score {
+    font-size: 2em;
+    font-weight: bold;
+    color: #ffd700;
+}
+
+.game-stats {
     display: flex;
-    gap: 20px;
+    justify-content: space-around;
+    border-top: 2px solid #333;
+    padding-top: 10px;
+}
+
+.stat {
+    font-size: 1.2em;
 }
 
 .field {
-    height: 300px;
+    height: 400px;
     background-color: var(--field-green);
     position: relative;
     border: 5px solid #333;
@@ -55,23 +79,20 @@ body {
 
 .player-container {
     position: absolute;
-    bottom: 10px;
-    left: 10%;
-    transition: all 1s ease;
+    bottom: 50px;
+    left: 20%;
     z-index: 2;
+    transition: all 0.5s ease-in-out;
 }
 
-.player {
+.player-sprite {
     width: 50px;
     height: 50px;
-    position: relative;
-}
-
-.sprite {
-    width: 50px;
-    height: 50px;
-    background-image: url('https://raw.githubusercontent.com/robe0400/nfl-quiz-game/main/sprites/player-sprite.png');
+    background: url('images/player-sprite.png') 0 0 no-repeat;
     background-size: 300px 50px;
+}
+
+.player-sprite.running {
     animation: run-animation 0.5s steps(6) infinite;
 }
 
@@ -80,13 +101,159 @@ body {
     to { background-position: -300px; }
 }
 
-.running {
-    animation: moveRight 2s linear;
+.play-clock {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #ff0000;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 2em;
 }
 
-@keyframes moveRight {
-    from { transform: translateX(0); }
-    to { transform: translateX(200px); }
+.play-selection {
+    background-color: #333;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.play-type {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.play-button {
+    padding: 10px 20px;
+    font-size: 1.2em;
+    background-color: #555;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.play-button.active {
+    background-color: #007bff;
+}
+
+.question-container {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.question {
+    font-size: 1.3em;
+    margin-bottom: 20px;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.option-button {
+    padding: 15px;
+    font-size: 1.1em;
+    background-color: #444;
+    color: white;
+    border: 2px solid #666;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.option-button:hover {
+    background-color: #666;
+    transform: scale(1.05);
+}
+
+.option-button.correct {
+    background-color: #28a745;
+    border-color: #1e7e34;
+}
+
+.option-button.incorrect {
+    background-color: #dc3545;
+    border-color: #bd2130;
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.game-button {
+    padding: 15px 30px;
+    font-size: 1.2em;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.game-button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.trophy-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.trophy-popup {
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    padding: 2rem;
+    border-radius: 20px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+    animation: popIn 0.5s ease-out;
+}
+
+.trophy-popup img {
+    width: 200px;
+    height: auto;
+    margin-bottom: 1rem;
+    animation: shine 2s infinite;
+}
+
+.trophy-popup h2 {
+    font-size: 2em;
+    margin: 1rem 0;
+    color: #ffd700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes shine {
+    0% { filter: brightness(1); }
+    50% { filter: brightness(1.5); }
+    100% { filter: brightness(1); }
 }
 
 .message {
@@ -96,83 +263,10 @@ body {
     transform: translate(-50%, -50%);
     background-color: rgba(0, 0, 0, 0.8);
     color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    display: none;
-    z-index: 3;
-}
-
-.question-container {
-    background-color: white;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.question {
-    font-size: 1.2em;
-    margin-bottom: 20px;
-    color: #333;
-}
-
-.options {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 10px;
-}
-
-.options button {
-    padding: 15px;
-    border: none;
-    background-color: #007bff;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.options button:hover {
-    background-color: #0056b3;
-}
-
-.options button.incorrect {
-    background-color: #dc3545;
-}
-
-.options button.correct {
-    background-color: #28a745;
-}
-
-.start-button, .read-button {
-    display: inline-block;
-    margin: 20px 10px;
-    padding: 15px 30px;
-    font-size: 1.2em;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.read-button {
-    background-color: #17a2b8;
-}
-
-.start-button:hover {
-    background-color: #218838;
-}
-
-.read-button:hover {
-    background-color: #138496;
-}
-
-@keyframes celebrate {
-    0% { transform: scale(1) rotate(0deg); }
-    50% { transform: scale(1.5) rotate(180deg); }
-    100% { transform: scale(1) rotate(360deg); }
-}
-
-.celebrate {
-    animation: celebrate 1s ease;
+    font-size: 1.5em;
+    display: none;
+    z-index: 3;
+    text-align: center;
 }

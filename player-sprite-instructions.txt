@@ -1,0 +1,9 @@
+Create a sprite sheet with these specifications:
+1. Size: 300px × 50px
+2. Individual frame size: 50px × 50px
+3. Number of frames: 6
+4. Format: PNG with transparency
+
+Simple sprite representation:
+[1][2][3][4][5][6]
+Each frame should show a football player in different running poses

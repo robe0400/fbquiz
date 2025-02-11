@@ -1,224 +1,291 @@
+// ... continuing from previous code ...
+
+    readQuestion() {
+        const speech = new SpeechSynthesisUtterance(this.currentQuestion.question);
+        speechSynthesis.speak(speech);
+    }
+
+    readOption(option) {
+        const speech = new SpeechSynthesisUtterance(option);
+        speechSynthesis.speak(speech);
+    }
+
+    startPlayClock() {
+        if (this.playClockInterval) clearInterval(this.playClockInterval);
+        this.playClock = 40;
+        document.getElementById('playClock').textContent = this.playClock;
+        
+        this.playClockInterval = setInterval(() => {
+            this.playClock--;
+            document.getElementById('playClock').textContent = this.playClock;
+            
+            if (this.playClock <= 0) {
+                this.handleDelayOfGame();
+            }
+        }, 1000);
+    }
+
+    handleDelayOfGame() {
+        clearInterval(this.playClockInterval);
+        this.soundManager.play('whistle');
+        this.showMessage('Delay of Game - 5 Yard Penalty');
+        this.yardsToGo += 5;
+        this.updateDisplay();
+        setTimeout(() => this.selectQuestion(), 2000);
+    }
+
+    checkAnswer(selectedOption) {
+        clearInterval(this.playClockInterval);
+        const isCorrect = selectedOption === this.currentQuestion.answer;
+        
+        if (isCorrect) {
+            this.handleCorrectAnswer();
+        } else {
+            this.handleIncorrectAnswer();
+        }
+    }
+
+    handleCorrectAnswer() {
+        const yards = this.currentQuestion.yards || 10;
+        this.ballPosition += yards;
+        this.yardsToGo -= yards;
+        this.score += yards;
+        
+        this.soundManager.play('cheer');
+        
+        const playerSprite = document.querySelector('.player-sprite');
+        playerSprite.classList.add('running');
+        
+        if (this.ballPosition >= 100) {
+            this.handleTouchdown();
+        } else if (this.yardsToGo <= 0) {
+            this.handleFirstDown();
+        } else {
+            this.down++;
+            if (this.down > 4) {
+                this.handleTurnover();
+            }
+        }
+        
+        this.updateDisplay();
+        setTimeout(() => {
+            playerSprite.classList.remove('running');
+            this.selectQuestion();
+        }, 1500);
+    }
+
+    handleIncorrectAnswer() {
+        this.soundManager.play('whistle');
+        this.down++;
+        this.showMessage('Incomplete Pass!');
+        
+        if (this.down > 4) {
+            this.handleTurnover();
+        } else {
+            this.updateDisplay();
+            setTimeout(() => this.selectQuestion(), 1500);
+        }
+    }
+
+    handleTouchdown() {
+        this.score += 7; // Touchdown + extra point
+        this.soundManager.play('touchdown');
+        this.showMessage('TOUCHDOWN! +7 Points');
+        this.resetDrivePosition();
+    }
+
+    handleFirstDown() {
+        this.soundManager.play('firstDown');
+        this.showMessage('FIRST DOWN!');
+        this.down = 1;
+        this.yardsToGo = 10;
+    }
+
+    handleTurnover() {
+        this.soundManager.play('whistle');
+        this.showMessage('Turnover on Downs!');
+        this.resetDrivePosition();
+    }
+
+    resetDrivePosition() {
+        this.down = 1;
+        this.yardsToGo = 10;
+        this.ballPosition = 20;
+    }
+
+    showMessage(text) {
+        const messageElement = document.getElementById('message');
+        messageElement.textContent = text;
+        messageElement.style.display = 'block';
+        setTimeout(() => {
+            messageElement.style.display = 'none';
+        }, 2000);
+    }
+
+    endGame() {
+        clearInterval(this.gameInterval);
+        clearInterval(this.playClockInterval);
+        this.showTrophy();
+    }
+
+    showTrophy() {
+        const trophyContainer = document.createElement('div');
+        trophyContainer.className = 'trophy-container';
+        
+        let trophyType, message;
+        if (this.score >= 400) {
+            trophyType = 'mvp';
+            message = 'NFL MVP! You\'re a Legend!';
+        } else if (this.score >= 300) {
+            trophyType = 'all-pro';
+            message = 'All-Pro! Outstanding Performance!';
+        } else if (this.score >= 200) {
+            trophyType = 'pro';
+            message = 'Pro Bowl Caliber!';
+        } else if (this.score >= 100) {
+            trophyType = 'rookie';
+            message = 'Rookie of the Year!';
+        } else {
+            trophyType = 'practice';
+            message = 'Keep Practicing!';
+        }
+
+        trophyContainer.innerHTML = `
+            <div class="trophy-popup">
+                <img src="images/${trophyType}-trophy.png" alt="${trophyType} Trophy">
+                <h2>${message}</h2>
+                <p>Final Score: ${this.score}</p>
+                <button class="play-again">Play Again</button>
+            </div>
+        `;
+
+        document.body.appendChild(trophyContainer);
+        this.soundManager.play('victory');
+
+        trophyContainer.querySelector('.play-again').addEventListener('click', () => {
+            trophyContainer.remove();
+            this.startGame();
+        });
+    }
+}
+
+// All the recent NFL questions (2020 onwards)
 const questions = [
     {
-        question: "Which NFL team has won the most Super Bowls?",
-        options: ["Green Bay Packers", "New England Patriots", "Pittsburgh Steelers"],
-        answer: "New England Patriots"
+        type: 'pass',
+        difficulty: 'medium',
+        question: "Who kicked the game-winning field goal for the Chiefs in the 2024 AFC Championship against the Ravens?",
+        options: ["Harrison Butker", "Justin Tucker", "Jake Moody"],
+        answer: "Harrison Butker",
+        yards: 15
     },
     {
-        question: "Who holds the NFL record for most career passing yards?",
-        options: ["Tom Brady", "Peyton Manning", "Drew Brees"],
-        answer: "Tom Brady"
+        type: 'pass',
+        difficulty: 'long',
+        question: "Which Lions receiver caught 2 touchdowns in their 2024 playoff win against the Rams?",
+        options: ["Amon-Ra St. Brown", "Josh Reynolds", "Sam LaPorta"],
+        answer: "Sam LaPorta",
+        yards: 20
     },
     {
-        question: "What is the distance between yard lines on a football field?",
-        options: ["5 yards", "10 yards", "15 yards"],
-        answer: "10 yards"
+        type: 'run',
+        difficulty: 'medium',
+        question: "Who scored the game-winning touchdown for the Chiefs against the Bills in the 2024 Divisional Round?",
+        options: ["Isiah Pacheco", "Patrick Mahomes", "Travis Kelce"],
+        answer: "Isiah Pacheco",
+        yards: 12
     },
     {
-        question: "How many points is a field goal worth?",
-        options: ["2 points", "3 points", "4 points"],
-        answer: "3 points"
+        type: 'pass',
+        difficulty: 'long',
+        question: "Which 49ers player caught the game-winning TD in the 2024 Divisional Round against the Packers?",
+        options: ["Christian McCaffrey", "George Kittle", "Brandon Aiyuk"],
+        answer: "Christian McCaffrey",
+        yards: 20
     },
     {
-        question: "Which team won the first Super Bowl?",
-        options: ["Green Bay Packers", "Kansas City Chiefs", "New York Jets"],
-        answer: "Green Bay Packers"
+        type: 'pass',
+        difficulty: 'medium',
+        question: "Who caught the game-winning touchdown in Super Bowl LVIII (2024)?",
+        options: ["Mecole Hardman Jr.", "Travis Kelce", "Rashee Rice"],
+        answer: "Mecole Hardman Jr.",
+        yards: 15
     },
     {
-        question: "What is the NFL's overtime period length in regular season games?",
-        options: ["10 minutes", "15 minutes", "Until someone scores"],
-        answer: "10 minutes"
+        type: 'run',
+        difficulty: 'short',
+        question: "Which 49ers running back emerged as a star in 2023?",
+        options: ["Christian McCaffrey", "Elijah Mitchell", "Jordan Mason"],
+        answer: "Christian McCaffrey",
+        yards: 8
     },
     {
-        question: "How many players are on the field per team during a play?",
-        options: ["9", "11", "12"],
-        answer: "11"
+        type: 'pass',
+        difficulty: 'medium',
+        question: "Which rookie quarterback was drafted first overall by the Panthers in 2023?",
+        options: ["Bryce Young", "C.J. Stroud", "Anthony Richardson"],
+        answer: "Bryce Young",
+        yards: 15
     },
     {
-        question: "What is the maximum number of players allowed on an NFL team's roster?",
-        options: ["45", "53", "60"],
-        answer: "53"
+        type: 'pass',
+        difficulty: 'short',
+        question: "Who won NFL MVP in 2023?",
+        options: ["Patrick Mahomes", "Josh Allen", "Lamar Jackson"],
+        answer: "Lamar Jackson",
+        yards: 10
     },
     {
-        question: "Which NFL team is known as 'America's Team'?",
-        options: ["Dallas Cowboys", "New England Patriots", "Green Bay Packers"],
-        answer: "Dallas Cowboys"
+        type: 'pass',
+        difficulty: 'medium',
+        question: "Which receiver broke the single-season receiving yards record in 2023?",
+        options: ["Justin Jefferson", "Tyreek Hill", "CeeDee Lamb"],
+        answer: "Tyreek Hill",
+        yards: 15
     },
     {
-        question: "What is the name of the NFL's championship trophy?",
-        options: ["Vince Lombardi Trophy", "Super Bowl Trophy", "NFL Championship Cup"],
-        answer: "Vince Lombardi Trophy"
+        type: 'run',
+        difficulty: 'medium',
+        question: "Which rookie running back for the Falcons had a breakout season in 2023?",
+        options: ["Bijan Robinson", "Jahmyr Gibbs", "Kendre Miller"],
+        answer: "Bijan Robinson",
+        yards: 12
+    },
+    {
+        type: 'pass',
+        difficulty: 'short',
+        question: "Who won Offensive Rookie of the Year in 2023?",
+        options: ["C.J. Stroud", "Anthony Richardson", "Bryce Young"],
+        answer: "C.J. Stroud",
+        yards: 10
+    },
+    {
+        type: 'run',
+        difficulty: 'medium',
+        question: "Which Lions running back helped lead them to the NFC Championship in 2023?",
+        options: ["Jahmyr Gibbs", "David Montgomery", "D'Andre Swift"],
+        answer: "Jahmyr Gibbs",
+        yards: 15
+    },
+    {
+        type: 'pass',
+        difficulty: 'medium',
+        question: "Who threw the game-winning touchdown in the Bills vs Steelers 2024 playoff game?",
+        options: ["Josh Allen", "Kenny Pickett", "Mason Rudolph"],
+        answer: "Josh Allen",
+        yards: 15
+    },
+    {
+        type: 'pass',
+        difficulty: 'medium',
+        question: "Which Packers receiver had 2 touchdowns in their 2024 playoff win against the Cowboys?",
+        options: ["Romeo Doubs", "Christian Watson", "Jayden Reed"],
+        answer: "Romeo Doubs",
+        yards: 15
     }
 ];
 
-class GameState {
-    constructor() {
-        this.currentQuestionIndex = 0;
-        this.score = 0;
-        this.down = 1;
-        this.yardsToGo = 10;
-        this.incompletePasses = 0;
-        this.hasPossession = true;
-        this.playerPosition = 10;
-        this.currentSpeech = null;
-    }
-
-    reset() {
-        this.currentQuestionIndex = 0;
-        this.score = 0;
-        this.down = 1;
-        this.yardsToGo = 10;
-        this.incompletePasses = 0;
-        this.hasPossession = true;
-        this.playerPosition = 10;
-        this.updateDisplay();
-    }
-
-    updateDisplay() {
-        document.getElementById('down').textContent = this.down;
-        document.getElementById('yardsToGo').textContent = this.yardsToGo;
-        document.getElementById('score').textContent = this.score;
-        document.getElementById('possession').textContent = this.hasPossession ? 'Offense' : 'Defense';
-        document.getElementById('incompletePasses').textContent = this.incompletePasses;
-        
-        const playerContainer = document.querySelector('.player-container');
-        playerContainer.style.left = `${this.playerPosition}%`;
-    }
-
-    stopSpeaking() {
-        if (this.currentSpeech) {
-            speechSynthesis.cancel();
-        }
-    }
-}
-
-const game = new GameState();
-
-function speak(text) {
-    game.stopSpeaking();
-    const speech = new SpeechSynthesisUtterance(text);
-    speech.rate = 1;
-    game.currentSpeech = speech;
-    speechSynthesis.speak(speech);
-}
-
-function readCurrentQuestion() {
-    const question = questions[game.currentQuestionIndex];
-    speak(question.question);
-    setTimeout(() => {
-        speak("The options are:");
-        question.options.forEach((option, index) => {
-            setTimeout(() => speak(option), (index + 1) * 2000);
-        });
-    }, 2000);
-}
-
-function showMessage(text, duration = 2000) {
-    const messageElement = document.getElementById('message');
-    messageElement.textContent = text;
-    messageElement.style.display = 'block';
-    setTimeout(() => {
-        messageElement.style.display = 'none';
-    }, duration);
-}
-
-function movePlayer() {
-    const player = document.querySelector('.player-container');
-    player.style.transition = 'left 1s ease';
-    player.style.left = `${game.playerPosition}%`;
-    
-    const sprite = document.querySelector('.sprite');
-    sprite.style.animation = 'run-animation 0.5s steps(6) infinite';
-    
-    setTimeout(() => {
-        sprite.style.animation = 'none';
-    }, 1000);
-}
-
-function handleCorrectAnswer() {
-    game.score += 10;
-    game.playerPosition += 10;
-    game.down = 1;
-    game.yardsToGo = 10;
-    
-    movePlayer();
-    
-    const player = document.getElementById('player');
-    player.classList.add('celebrate');
-    setTimeout(() => player.classList.remove('celebrate'), 1000);
-    
-    showMessage('First Down!');
-    speak('First Down! Great job!');
-}
-
-function handleIncompletePass() {
-    game.down++;
-    
-    if (game.down > 4) {
-        game.incompletePasses++;
-        showMessage('Turnover on downs!');
-        speak('Turnover on downs! Try again!');
-        setTimeout(() => {
-            game.reset();
-            showQuestion();
-        }, 2000);
-    } else {
-        showMessage('Incomplete Pass! Try again!');
-        speak('Incomplete Pass! Try again!');
-        // Don't increment currentQuestionIndex here to allow retry
-    }
-}
-
-function showQuestion() {
-    if (game.currentQuestionIndex >= questions.length) {
-        showMessage('Game Over! Final Score: ' + game.score);
-        speak('Game Over! Final Score: ' + game.score);
-        return;
-    }
-
-    const question = questions[game.currentQuestionIndex];
-    document.getElementById('question').textContent = question.question;
-    
-    const optionsContainer = document.getElementById('options');
-    optionsContainer.innerHTML = '';
-    
-    question.options.forEach(option => {
-        const button = document.createElement('button');
-        button.textContent = option;
-        button.onclick = () => checkAnswer(option, button);
-        optionsContainer.appendChild(button);
-    });
-
-    readCurrentQuestion();
-    game.updateDisplay();
-}
-
-function checkAnswer(selectedOption, button) {
-    const question = questions[game.currentQuestionIndex];
-    if (selectedOption === question.answer) {
-        button.classList.add('correct');
-        handleCorrectAnswer();
-        game.currentQuestionIndex++;
-        setTimeout(showQuestion, 1500);
-    } else {
-        button.classList.add('incorrect');
-        handleIncompletePass();
-        setTimeout(() => {
-            button.classList.remove('incorrect');
-        }, 1500);
-    }
-    
-    game.updateDisplay();
-}
-
-document.getElementById('startGame').onclick = () => {
-    game.reset();
-    showQuestion();
-};
-
-document.getElementById('readQuestion').onclick = () => {
-    readCurrentQuestion();
-};
-
-// Initialize the game
-game.updateDisplay();
+// Initialize the game when the DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const game = new NFLQuizGame();
+});

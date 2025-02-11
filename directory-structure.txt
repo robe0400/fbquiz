@@ -1,0 +1,17 @@
+nfl-quiz-game/
+├── index.html
+├── styles.css
+├── quiz.js
+├── images/
+│   ├── player-sprite.png
+│   ├── mvp-trophy.png
+│   ├── all-pro-trophy.png
+│   ├── pro-trophy.png
+│   ├── rookie-trophy.png
+│   └── practice-trophy.png
+└── sounds/
+    ├── cheer.mp3
+    ├── whistle.mp3
+    ├── touchdown.mp3
+    ├── victory.mp3
+    └── first-down.mp3

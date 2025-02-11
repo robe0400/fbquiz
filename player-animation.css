@@ -1,0 +1,26 @@
+.player-sprite {
+    width: 50px;
+    height: 50px;
+    background: url('images/player-sprite.png') 0 0 no-repeat;
+    background-size: 300px 50px;
+    image-rendering: pixelated;
+}
+
+.player-sprite.running {
+    animation: run-animation 0.5s steps(6) infinite;
+}
+
+@keyframes run-animation {
+    from { background-position: 0px; }
+    to { background-position: -300px; }
+}
+
+.player-sprite.celebrate {
+    animation: celebrate 1s infinite;
+}
+
+@keyframes celebrate {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0); }
+}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sound Test</title>
+    <style>
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sound Test Page</h1>
+    
+    <button onclick="playSound('cheer')">Test Cheer</button>
+    <button onclick="playSound('whistle')">Test Whistle</button>
+    <button onclick="playSound('touchdown')">Test Touchdown</button>
+    <button onclick="playSound('victory')">Test Victory</button>
+    <button onclick="playSound('firstDown')">Test First Down</button>
+    
+    <audio id="cheerSound" src="sounds/cheer.mp3" preload="auto"></audio>
+    <audio id="whistleSound" src="sounds/whistle.mp3" preload="auto"></audio>
+    <audio id="touchdownSound" src="sounds/touchdown.mp3" preload="auto"></audio>
+    <audio id="victorySound" src="sounds/victory.mp3" preload="auto"></audio>
+    <audio id="firstDownSound" src="sounds/first-down.mp3" preload="auto"></audio>
+
+    <script>
+        function playSound(soundName) {
+            const sound = document.getElementById(soundName + 'Sound');
+            sound.currentTime = 0;
+            sound.play().catch(error => {
+                console.error('Error playing sound:', error);
+            });
+        }
+    </script>
+</body>
+</html>

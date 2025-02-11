@@ -1,0 +1,24 @@
+1. cheer.mp3
+Source: https://pixabay.com/sound-effects/crowd-cheer-ii-6263/
+Duration: 2 seconds
+Description: Crowd cheering enthusiastically
+
+2. whistle.mp3
+Source: https://pixabay.com/sound-effects/referee-whistle-blow-gymnasium-6320/
+Duration: 1 second
+Description: Sharp referee whistle
+
+3. touchdown.mp3
+Source: https://pixabay.com/sound-effects/stadium-crowd-loud-cheer-a-6280/
+Duration: 3 seconds
+Description: Loud touchdown celebration with announcer
+
+4. victory.mp3
+Source: https://pixabay.com/sound-effects/success-fanfare-trumpets-6185/
+Duration: 2 seconds
+Description: Victory fanfare with trumpets
+
+5. first-down.mp3
+Source: https://pixabay.com/sound-effects/male-voice-first-down-6314/
+Duration: 1 second
+Description: Announcer saying "First Down!"

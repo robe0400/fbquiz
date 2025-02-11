@@ -1,0 +1,19 @@
+# Create and set up repository
+mkdir nfl-quiz-game
+cd nfl-quiz-game
+git init
+
+# Create directories
+mkdir images sounds
+
+# Download assets
+# (Download sound effects and create/download trophy images)
+
+# Add files
+git add .
+git commit -m "Initial commit with complete NFL quiz game"
+git branch -M main
+git remote add origin https://github.com/yourusername/nfl-quiz-game.git
+git push -u origin main
+
+# Enable GitHub Pages in repository settings

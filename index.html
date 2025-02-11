@@ -9,25 +9,35 @@
 <body>
     <div class="game-container">
         <div class="scoreboard">
-            <div class="stats">
-                <div>Down: <span id="down">1</span></div>
-                <div>Yards to Go: <span id="yardsToGo">10</span></div>
-                <div>Score: <span id="score">0</span></div>
+            <div class="game-info">
+                <div class="team home">YOUR TEAM</div>
+                <div class="score" id="score">0</div>
+                <div class="team away">CPU</div>
+                <div class="score">0</div>
             </div>
-            <div class="possession">
-                <div>Possession: <span id="possession">Offense</span></div>
-                <div>Incomplete Passes: <span id="incompletePasses">0</span></div>
+            <div class="game-stats">
+                <div class="stat">Quarter: <span id="quarter">1st</span></div>
+                <div class="stat">Down: <span id="down">1</span></div>
+                <div class="stat">To Go: <span id="yardsToGo">10</span></div>
+                <div class="stat">Ball On: <span id="ballPosition">20</span></div>
+                <div class="stat">Time: <span id="gameTime">15:00</span></div>
+                <div class="stat">Play Clock: <span id="playClock">40</span></div>
             </div>
         </div>
         
         <div class="field">
             <div class="yard-lines"></div>
             <div class="player-container">
-                <div id="player" class="player">
-                    <div class="sprite"></div>
-                </div>
+                <div class="player-sprite" id="player"></div>
             </div>
             <div id="message" class="message"></div>
+        </div>
+
+        <div class="play-selection">
+            <div class="play-type">
+                <button class="play-button active" id="passPlay">Pass Play</button>
+                <button class="play-button" id="runPlay">Run Play</button>
+            </div>
         </div>
 
         <div class="question-container">
@@ -35,9 +45,19 @@
             <div id="options" class="options"></div>
         </div>
 
-        <button id="startGame" class="start-button">Start Game</button>
-        <button id="readQuestion" class="read-button">Read Question Again</button>
+        <div class="controls">
+            <button id="startGame" class="game-button">Kickoff</button>
+            <button id="readQuestion" class="game-button">Huddle Up</button>
+        </div>
     </div>
+
+    <!-- Preload audio -->
+    <audio id="cheerSound" src="sounds/cheer.mp3" preload="auto"></audio>
+    <audio id="whistleSound" src="sounds/whistle.mp3" preload="auto"></audio>
+    <audio id="touchdownSound" src="sounds/touchdown.mp3" preload="auto"></audio>
+    <audio id="victorySound" src="sounds/victory.mp3" preload="auto"></audio>
+    <audio id="firstDownSound" src="sounds/first-down.mp3" preload="auto"></audio>
+
     <script src="quiz.js"></script>
 </body>
 </html>
