@@ -53,13 +53,40 @@ body {
     );
 }
 
-.player {
+.player-container {
     position: absolute;
     bottom: 10px;
     left: 10%;
-    font-size: 2em;
-    transition: all 0.5s ease;
+    transition: all 1s ease;
     z-index: 2;
+}
+
+.player {
+    width: 50px;
+    height: 50px;
+    position: relative;
+}
+
+.sprite {
+    width: 50px;
+    height: 50px;
+    background-image: url('https://raw.githubusercontent.com/robe0400/nfl-quiz-game/main/sprites/player-sprite.png');
+    background-size: 300px 50px;
+    animation: run-animation 0.5s steps(6) infinite;
+}
+
+@keyframes run-animation {
+    from { background-position: 0px; }
+    to { background-position: -300px; }
+}
+
+.running {
+    animation: moveRight 2s linear;
+}
+
+@keyframes moveRight {
+    from { transform: translateX(0); }
+    to { transform: translateX(200px); }
 }
 
 .message {
@@ -108,9 +135,17 @@ body {
     background-color: #0056b3;
 }
 
-.start-button {
-    display: block;
-    margin: 20px auto;
+.options button.incorrect {
+    background-color: #dc3545;
+}
+
+.options button.correct {
+    background-color: #28a745;
+}
+
+.start-button, .read-button {
+    display: inline-block;
+    margin: 20px 10px;
     padding: 15px 30px;
     font-size: 1.2em;
     background-color: #28a745;
@@ -120,8 +155,16 @@ body {
     cursor: pointer;
 }
 
+.read-button {
+    background-color: #17a2b8;
+}
+
 .start-button:hover {
     background-color: #218838;
+}
+
+.read-button:hover {
+    background-color: #138496;
 }
 
 @keyframes celebrate {
