@@ -1,82 +1,180 @@
 const questions = [
-    { question: "What team won the Super Bowl in 2021?", options: ["Tampa Bay Buccaneers", "Kansas City Chiefs", "Green Bay Packers"], answer: "Tampa Bay Buccaneers" },
-    { question: "How many points is a touchdown worth?", options: ["3", "6", "7"], answer: "6" },
-    { question: "What is the name of the NFL championship game?", options: ["World Series", "Stanley Cup", "Super Bowl"], answer: "Super Bowl" },
-    { question: "How many players are on the field for each team?", options: ["11", "12", "10"], answer: "11" },
-    { question: "What color are the goal posts?", options: ["White", "Yellow", "Blue"], answer: "Yellow" },
-    { question: "What are the officials called?", options: ["Judges", "Referees", "Umpires"], answer: "Referees" },
-    { question: "How many yards for a first down?", options: ["5", "10", "15"], answer: "10" },
-    { question: "What is the area called where touchdowns are scored?", options: ["End Zone", "Goal Line", "Touchline"], answer: "End Zone" },
-    { question: "What is it called when the defense catches a pass?", options: ["Interception", "Fumble", "Sack"], answer: "Interception" },
-    { question: "How many quarters are in a football game?", options: ["2", "3", "4"], answer: "4" },
-    { question: "What is the length of a football field?", options: ["80 yards", "100 yards", "120 yards"], answer: "100 yards" },
-    { question: "What is the name of the NFL's championship trophy?", options: ["Heisman Trophy", "Lombardi Trophy", "Stanley Cup"], answer: "Lombardi Trophy" },
-    { question: "Who is the NFL's all-time leading rusher?", options: ["Walter Payton", "Emmitt Smith", "Barry Sanders"], answer: "Emmitt Smith" },
-    { question: "What position does Tom Brady play?", options: ["Wide Receiver", "Running Back", "Quarterback"], answer: "Quarterback" },
-    { question: "Which team has the most Super Bowl wins?", options: ["Pittsburgh Steelers", "Dallas Cowboys", "New England Patriots"], answer: "Pittsburgh Steelers" },
-    { question: "What is a safety worth?", options: ["1 point", "2 points", "3 points"], answer: "2 points" },
-    { question: "How long is the halftime break?", options: ["10 minutes", "12 minutes", "15 minutes"], answer: "12 minutes" },
-    { question: "What is the home of the Dallas Cowboys?", options: ["Lambeau Field", "AT&T Stadium", "MetLife Stadium"], answer: "AT&T Stadium" },
-    { question: "Who was the MVP of Super Bowl 50?", options: ["Tom Brady", "Von Miller", "Peyton Manning"], answer: "Von Miller" },
-    { question: "Which team is known as the 'Cheeseheads'?", options: ["Chicago Bears", "Minnesota Vikings", "Green Bay Packers"], answer: "Green Bay Packers" },
-    { question: "What is the name of Miami's NFL team?", options: ["Miami Marlins", "Miami Heat", "Miami Dolphins"], answer: "Miami Dolphins" },
-    { question: "How many points is a field goal worth?", options: ["2", "3", "4"], answer: "3" }
+    {
+        question: "Which NFL team has won the most Super Bowls?",
+        options: ["Green Bay Packers", "New England Patriots", "Pittsburgh Steelers"],
+        answer: "New England Patriots"
+    },
+    {
+        question: "Who holds the NFL record for most career passing yards?",
+        options: ["Tom Brady", "Peyton Manning", "Drew Brees"],
+        answer: "Tom Brady"
+    },
+    {
+        question: "What is the distance between yard lines on a football field?",
+        options: ["5 yards", "10 yards", "15 yards"],
+        answer: "10 yards"
+    },
+    {
+        question: "How many points is a field goal worth?",
+        options: ["2 points", "3 points", "4 points"],
+        answer: "3 points"
+    },
+    {
+        question: "Which team won the first Super Bowl?",
+        options: ["Green Bay Packers", "Kansas City Chiefs", "New York Jets"],
+        answer: "Green Bay Packers"
+    },
+    {
+        question: "What is the NFL's overtime period length in regular season games?",
+        options: ["10 minutes", "15 minutes", "Until someone scores"],
+        answer: "10 minutes"
+    },
+    {
+        question: "How many players are on the field per team during a play?",
+        options: ["9", "11", "12"],
+        answer: "11"
+    },
+    {
+        question: "What is the maximum number of players allowed on an NFL team's roster?",
+        options: ["45", "53", "60"],
+        answer: "53"
+    },
+    {
+        question: "Which NFL team is known as 'America's Team'?",
+        options: ["Dallas Cowboys", "New England Patriots", "Green Bay Packers"],
+        answer: "Dallas Cowboys"
+    },
+    {
+        question: "What is the name of the NFL's championship trophy?",
+        options: ["Vince Lombardi Trophy", "Super Bowl Trophy", "NFL Championship Cup"],
+        answer: "Vince Lombardi Trophy"
+    }
 ];
 
-let currentQuestionIndex = 0;
-let score = 0;
-let firstDowns = 0;
+class GameState {
+    constructor() {
+        this.currentQuestionIndex = 0;
+        this.score = 0;
+        this.down = 1;
+        this.yardsToGo = 10;
+        this.incompletePasses = 0;
+        this.hasPossession = true;
+        this.playerPosition = 10;
+    }
+
+    reset() {
+        this.currentQuestionIndex = 0;
+        this.score = 0;
+        this.down = 1;
+        this.yardsToGo = 10;
+        this.incompletePasses = 0;
+        this.hasPossession = true;
+        this.playerPosition = 10;
+        this.updateDisplay();
+    }
+
+    updateDisplay() {
+        document.getElementById('down').textContent = this.down;
+        document.getElementById('yardsToGo').textContent = this.yardsToGo;
+        document.getElementById('score').textContent = this.score;
+        document.getElementById('possession').textContent = this.hasPossession ? 'Offense' : 'Defense';
+        document.getElementById('incompletePasses').textContent = this.incompletePasses;
+        
+        const player = document.getElementById('player');
+        player.style.left = `${this.playerPosition}%`;
+    }
+}
+
+const game = new GameState();
 
 function speak(text) {
     const speech = new SpeechSynthesisUtterance(text);
+    speech.rate = 1;
     speechSynthesis.speak(speech);
 }
 
-function showQuestion() {
-    const questionElement = document.getElementById('question');
-    const optionsElement = document.getElementById('options');
-    const scoreElement = document.getElementById('score');
-    const yardlineElement = document.getElementById('yardline');
+function showMessage(text, duration = 2000) {
+    const messageElement = document.getElementById('message');
+    messageElement.textContent = text;
+    messageElement.style.display = 'block';
+    setTimeout(() => {
+        messageElement.style.display = 'none';
+    }, duration);
+}
 
-    if (currentQuestionIndex < questions.length) {
-        const question = questions[currentQuestionIndex];
-        questionElement.textContent = question.question;
-        optionsElement.innerHTML = '';
-        question.options.forEach(option => {
-            const button = document.createElement('button');
-            button.textContent = option;
-            button.onclick = () => checkAnswer(option);
-            optionsElement.appendChild(button);
-        });
-        speak(question.question);
+function handleCorrectAnswer() {
+    game.score += 10;
+    game.playerPosition += 10;
+    game.down = 1;
+    game.yardsToGo = 10;
+    
+    const player = document.getElementById('player');
+    player.classList.add('celebrate');
+    setTimeout(() => player.classList.remove('celebrate'), 1000);
+    
+    showMessage('First Down!');
+    speak('First Down!');
+}
+
+function handleIncompletePass() {
+    game.incompletePasses++;
+    game.down++;
+    
+    if (game.incompletePasses >= 4) {
+        game.hasPossession = false;
+        showMessage('Turnover!');
+        speak('Turnover on downs!');
+        setTimeout(() => {
+            game.reset();
+            showQuestion();
+        }, 2000);
     } else {
-        questionElement.textContent = "Quiz Over! Well done!";
-        optionsElement.innerHTML = '';
-        speak("Quiz Over! Well done!");
+        showMessage('Incomplete Pass!');
+        speak('Incomplete Pass!');
+    }
+}
+
+function showQuestion() {
+    if (game.currentQuestionIndex >= questions.length) {
+        showMessage('Game Over! Final Score: ' + game.score);
+        speak('Game Over! Final Score: ' + game.score);
+        return;
     }
 
-    scoreElement.textContent = `Score: ${score} yards`;
-    yardlineElement.style.bottom = `${score}px`;
+    const question = questions[game.currentQuestionIndex];
+    document.getElementById('question').textContent = question.question;
+    
+    const optionsContainer = document.getElementById('options');
+    optionsContainer.innerHTML = '';
+    
+    question.options.forEach(option => {
+        const button = document.createElement('button');
+        button.textContent = option;
+        button.onclick = () => checkAnswer(option);
+        optionsContainer.appendChild(button);
+    });
+
+    speak(question.question);
+    game.updateDisplay();
 }
 
 function checkAnswer(selectedOption) {
-    const question = questions[currentQuestionIndex];
+    const question = questions[game.currentQuestionIndex];
     if (selectedOption === question.answer) {
-        score += 10;
-        firstDowns++;
-        if (firstDowns === 4) {
-            score += 40; // Touchdown (end zone)
-            firstDowns = 0;
-            speak("Touchdown! You gained 50 yards!");
-        } else {
-            speak("Correct! You gained 10 yards and got a first down!");
-        }
+        handleCorrectAnswer();
     } else {
-        firstDowns = 0;
-        speak("Incorrect! It's an incomplete pass.");
+        handleIncompletePass();
     }
-    currentQuestionIndex++;
-    showQuestion();
+    
+    game.currentQuestionIndex++;
+    game.updateDisplay();
+    setTimeout(showQuestion, 1500);
 }
 
-showQuestion();
+document.getElementById('startGame').onclick = () => {
+    game.reset();
+    showQuestion();
+};
+
+// Initialize the game
+game.updateDisplay();
